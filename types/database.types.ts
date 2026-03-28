@@ -573,30 +573,60 @@ export type Database = {
           carrier: string
           created_at: string
           currency: string | null
+          due_date: string | null
+          error_message: string | null
           id: string
+          import_run_id: string | null
+          imported_at: string | null
           invoice_date: string | null
           invoice_number: string
+          invoice_total_amount: number | null
+          last_imported_at: string | null
+          raw_payload: Json | null
           source_file_name: string | null
+          source_message_id: string | null
+          status: string
+          updated_at: string
         }
         Insert: {
           billing_account?: string | null
           carrier: string
           created_at?: string
           currency?: string | null
+          due_date?: string | null
+          error_message?: string | null
           id?: string
+          import_run_id?: string | null
+          imported_at?: string | null
           invoice_date?: string | null
           invoice_number: string
+          invoice_total_amount?: number | null
+          last_imported_at?: string | null
+          raw_payload?: Json | null
           source_file_name?: string | null
+          source_message_id?: string | null
+          status?: string
+          updated_at?: string
         }
         Update: {
           billing_account?: string | null
           carrier?: string
           created_at?: string
           currency?: string | null
+          due_date?: string | null
+          error_message?: string | null
           id?: string
+          import_run_id?: string | null
+          imported_at?: string | null
           invoice_date?: string | null
           invoice_number?: string
+          invoice_total_amount?: number | null
+          last_imported_at?: string | null
+          raw_payload?: Json | null
           source_file_name?: string | null
+          source_message_id?: string | null
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1628,6 +1658,397 @@ export type Database = {
         }
         Relationships: []
       }
+      manager_goals: {
+        Row: {
+          account_id: number | null
+          created_at: string
+          current_value: number | null
+          deadline: string | null
+          description: string | null
+          domain: string
+          goal_type: string
+          id: string
+          metadata: Json
+          name: string
+          priority: number
+          status: string
+          target_value: number | null
+          unit: string | null
+          updated_at: string
+          user_id: number
+        }
+        Insert: {
+          account_id?: number | null
+          created_at?: string
+          current_value?: number | null
+          deadline?: string | null
+          description?: string | null
+          domain?: string
+          goal_type?: string
+          id?: string
+          metadata?: Json
+          name: string
+          priority?: number
+          status?: string
+          target_value?: number | null
+          unit?: string | null
+          updated_at?: string
+          user_id: number
+        }
+        Update: {
+          account_id?: number | null
+          created_at?: string
+          current_value?: number | null
+          deadline?: string | null
+          description?: string | null
+          domain?: string
+          goal_type?: string
+          id?: string
+          metadata?: Json
+          name?: string
+          priority?: number
+          status?: string
+          target_value?: number | null
+          unit?: string | null
+          updated_at?: string
+          user_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manager_goals_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      manager_kpis: {
+        Row: {
+          created_at: string
+          critical_threshold: number | null
+          current_value: number | null
+          description: string | null
+          direction: string
+          domain: string
+          goal_id: string
+          id: string
+          metadata: Json
+          name: string
+          status: string
+          target_value: number | null
+          unit: string | null
+          updated_at: string
+          user_id: number
+          warning_threshold: number | null
+        }
+        Insert: {
+          created_at?: string
+          critical_threshold?: number | null
+          current_value?: number | null
+          description?: string | null
+          direction?: string
+          domain?: string
+          goal_id: string
+          id?: string
+          metadata?: Json
+          name: string
+          status?: string
+          target_value?: number | null
+          unit?: string | null
+          updated_at?: string
+          user_id: number
+          warning_threshold?: number | null
+        }
+        Update: {
+          created_at?: string
+          critical_threshold?: number | null
+          current_value?: number | null
+          description?: string | null
+          direction?: string
+          domain?: string
+          goal_id?: string
+          id?: string
+          metadata?: Json
+          name?: string
+          status?: string
+          target_value?: number | null
+          unit?: string | null
+          updated_at?: string
+          user_id?: number
+          warning_threshold?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manager_kpis_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "manager_goals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manager_kpis_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      manager_plans: {
+        Row: {
+          created_at: string
+          description: string | null
+          domain: string
+          goal_id: string
+          id: string
+          metadata: Json
+          name: string
+          owner_user_id: number | null
+          status: string
+          timeframe: string
+          updated_at: string
+          user_id: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          domain?: string
+          goal_id: string
+          id?: string
+          metadata?: Json
+          name: string
+          owner_user_id?: number | null
+          status?: string
+          timeframe: string
+          updated_at?: string
+          user_id: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          domain?: string
+          goal_id?: string
+          id?: string
+          metadata?: Json
+          name?: string
+          owner_user_id?: number | null
+          status?: string
+          timeframe?: string
+          updated_at?: string
+          user_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manager_plans_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "manager_goals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manager_plans_owner_user_id_fkey"
+            columns: ["owner_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manager_plans_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      manager_task_schedules: {
+        Row: {
+          calendar_provider: string
+          created_at: string
+          external_event_id: string | null
+          id: string
+          notification_required: boolean
+          rule_basis: string | null
+          scheduled_end: string | null
+          scheduled_start: string
+          sync_status: string
+          task_id: string
+          updated_at: string
+        }
+        Insert: {
+          calendar_provider?: string
+          created_at?: string
+          external_event_id?: string | null
+          id?: string
+          notification_required?: boolean
+          rule_basis?: string | null
+          scheduled_end?: string | null
+          scheduled_start: string
+          sync_status?: string
+          task_id: string
+          updated_at?: string
+        }
+        Update: {
+          calendar_provider?: string
+          created_at?: string
+          external_event_id?: string | null
+          id?: string
+          notification_required?: boolean
+          rule_basis?: string | null
+          scheduled_end?: string | null
+          scheduled_start?: string
+          sync_status?: string
+          task_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manager_task_schedules_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "manager_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      manager_tasks: {
+        Row: {
+          account_id: number | null
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          domain: string
+          due_date: string | null
+          estimated_minutes: number | null
+          id: string
+          item_id: number | null
+          metadata: Json
+          notion_last_synced_at: string | null
+          notion_page_id: string | null
+          order_id: number | null
+          priority: string
+          reason: string | null
+          related_goal_id: string | null
+          related_kpi_id: string | null
+          related_plan_id: string | null
+          source_payload: Json | null
+          source_report_id: string | null
+          source_type: string
+          status: string
+          task_type: string
+          title: string
+          updated_at: string
+          user_id: number
+        }
+        Insert: {
+          account_id?: number | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          domain?: string
+          due_date?: string | null
+          estimated_minutes?: number | null
+          id?: string
+          item_id?: number | null
+          metadata?: Json
+          notion_last_synced_at?: string | null
+          notion_page_id?: string | null
+          order_id?: number | null
+          priority?: string
+          reason?: string | null
+          related_goal_id?: string | null
+          related_kpi_id?: string | null
+          related_plan_id?: string | null
+          source_payload?: Json | null
+          source_report_id?: string | null
+          source_type?: string
+          status?: string
+          task_type?: string
+          title: string
+          updated_at?: string
+          user_id: number
+        }
+        Update: {
+          account_id?: number | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          domain?: string
+          due_date?: string | null
+          estimated_minutes?: number | null
+          id?: string
+          item_id?: number | null
+          metadata?: Json
+          notion_last_synced_at?: string | null
+          notion_page_id?: string | null
+          order_id?: number | null
+          priority?: string
+          reason?: string | null
+          related_goal_id?: string | null
+          related_kpi_id?: string | null
+          related_plan_id?: string | null
+          source_payload?: Json | null
+          source_report_id?: string | null
+          source_type?: string
+          status?: string
+          task_type?: string
+          title?: string
+          updated_at?: string
+          user_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manager_tasks_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "baypilot_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manager_tasks_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manager_tasks_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manager_tasks_related_goal_id_fkey"
+            columns: ["related_goal_id"]
+            isOneToOne: false
+            referencedRelation: "manager_goals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manager_tasks_related_kpi_id_fkey"
+            columns: ["related_kpi_id"]
+            isOneToOne: false
+            referencedRelation: "manager_kpis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manager_tasks_related_plan_id_fkey"
+            columns: ["related_plan_id"]
+            isOneToOne: false
+            referencedRelation: "manager_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manager_tasks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       markdown_presets: {
         Row: {
           account_id: number
@@ -2035,6 +2456,7 @@ export type Database = {
           line_item_cost_currency: string | null
           line_item_cost_value: number | null
           order_no: string
+          procurement_entries: Json
           procurement_ordered_at: string | null
           procurement_site_name: string | null
           procurement_status: string | null
@@ -2057,6 +2479,7 @@ export type Database = {
           line_item_cost_currency?: string | null
           line_item_cost_value?: number | null
           order_no: string
+          procurement_entries?: Json
           procurement_ordered_at?: string | null
           procurement_site_name?: string | null
           procurement_status?: string | null
@@ -2079,6 +2502,7 @@ export type Database = {
           line_item_cost_currency?: string | null
           line_item_cost_value?: number | null
           order_no?: string
+          procurement_entries?: Json
           procurement_ordered_at?: string | null
           procurement_site_name?: string | null
           procurement_status?: string | null

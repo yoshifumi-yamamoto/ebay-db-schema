@@ -28,7 +28,7 @@
 | `items` | `id` | `ebay_item_id`, `title`, `category_id`, `current_price_value`, `cost_price` | 出品商品マスタ | 価格変更、トラフィック、OpenClaw の基点 |
 | `buyers` | `id` | `ebay_buyer_id`, `email`, `address`, `feedback_score`, `attention_flag` | 購入者情報を保持 | メッセージ・ケース・受注で参照 |
 | `orders` | `id` | `order_no`, `buyer_id`, `shipping_status`, `cost_price`, `earnings`, `buyer_country_code` | 受注情報の中心テーブル | 送料・利益・発送・トラブル対応に波及。メッセージ送信状態も保持 |
-| `order_line_items` | `id` | `order_no`, `legacy_item_id`, `procurement_site_name`, `line_item_cost_value` | 受注明細 | `orders.order_no` を参照する点に注意 |
+| `order_line_items` | `id` | `order_no`, `legacy_item_id`, `procurement_site_name`, `procurement_entries`, `line_item_cost_value` | 受注明細 | `orders.order_no` を参照。`procurement_entries` で複数仕入れ候補を保持 |
 | `order_history` | `id` | `order_id`, `buyer_id`, `status`, `order_date`, `total_amount` | 受注の履歴・スナップショット保持 | `orders` とは別用途の履歴テーブルに見える |
 | `categories` | `id` | `category_id`, `category_name`, `category_level`, `category_path` | eBay カテゴリ情報の保持 | `items` の分類情報に対応 |
 | `country_codes` | `code` | `name_ja`, `name_en`, `currency`, `ebay_currency` | 国コード辞書 | 配送・関税・購入者国判定の基礎 |
@@ -67,7 +67,7 @@
 | `shipment_group_orders` | `group_id`, `order_no` | `group_id`, `order_no`, `created_at` | 発送グループと注文の中間テーブル | 複合主キー |
 | `shipping_rates` | `id` | `carrier`, `service_code`, `service_name`, `destination_scope`, `price_yen` | 送料マスタ | pricing 補助テーブル |
 | `shipco_senders` | `id` | `company`, `full_name`, `country`, `city`, `email` | Ship&Co 差出人情報 | 発送ラベル連携用 |
-| `carrier_invoices` | `id` | `carrier`, `invoice_number`, `invoice_date`, `billing_account`, `currency` | 運送会社請求書ヘッダ | `carrier_shipments` と `carrier_invoice_anomalies` の親 |
+| `carrier_invoices` | `id` | `carrier`, `invoice_number`, `invoice_date`, `billing_account`, `currency`, `status` | 運送会社請求書ヘッダ | import 監査用に `status`, `import_run_id`, `imported_at`, `raw_payload` を保持 |
 | `carrier_shipments` | `id` | `invoice_id`, `awb_number`, `shipment_date`, `tracking_number`, `carrier_actual_weight` | 運送会社の配送明細 | AWB 単位の請求・配送実績 |
 | `carrier_charges` | `id` | `shipment_id`, `charge_code`, `charge_group`, `amount`, `invoice_category` | 運送会社請求明細 | `carrier_shipments` の子 |
 | `carrier_invoice_anomalies` | `id` | `invoice_id`, `shipment_id`, `anomaly_code`, `details`, `fee_amount` | 請求異常・監査結果 | 請求精査テーブル |
@@ -99,6 +99,16 @@
 | `sheet_conversion_job_items` | `id` | `job_id`, `row_index`, `status`, `attempt_count`, `last_error` | シート変換ジョブの各行処理 | ジョブ粒度の詳細 |
 | `webhooks` | `id` | `account_id`, `event_type`, `url`, `is_active` | アカウント別 Webhook 設定 | `accounts` に従属 |
 | `system_errors` | `id` | `account_id`, `order_id`, `category`, `error_code`, `message` | システムエラー集約 | 注文やアカウントに紐づく障害記録 |
+
+## マネージャー・目標管理
+
+| テーブル名 | 主キー | 主なカラム | 用途 | 備考 |
+| --- | --- | --- | --- | --- |
+| `manager_goals` | `id` | `user_id`, `account_id`, `domain`, `name`, `goal_type`, `deadline`, `priority`, `status` | 管理目標の親テーブル | eBay 運営の目標管理。`goal_type` は長中短期 |
+| `manager_kpis` | `id` | `user_id`, `goal_id`, `name`, `direction`, `target_value`, `warning_threshold`, `critical_threshold`, `status` | 目標に紐づく KPI | `manager_goals` の子 |
+| `manager_plans` | `id` | `user_id`, `goal_id`, `name`, `timeframe`, `owner_user_id`, `status` | 目標達成プラン | 目標単位の実行計画 |
+| `manager_tasks` | `id` | `user_id`, `account_id`, `item_id`, `order_id`, `task_type`, `priority`, `status`, `due_date` | 実行タスク | 目標・KPI・プラン・商品・注文にぶら下がる |
+| `manager_task_schedules` | `id` | `task_id`, `scheduled_start`, `scheduled_end`, `calendar_provider`, `notification_required`, `sync_status` | タスクの予定・カレンダー同期情報 | `manager_tasks` の子 |
 
 ## 補助・個別用途
 

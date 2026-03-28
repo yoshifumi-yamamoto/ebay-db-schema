@@ -29,6 +29,10 @@ ER 図やテーブル群の構造を補足するためのメモです。
   - 配送請求の中心
   - `carrier_shipments`, `carrier_invoice_anomalies`, `carrier_unknown_charge_events` の親
 
+- `manager_goals`
+  - 目標管理ドメインの起点
+  - `manager_kpis`, `manager_plans`, `manager_tasks` に接続する
+
 ## 孤立気味のテーブル
 
 - `app_settings`
@@ -46,6 +50,9 @@ ER 図やテーブル群の構造を補足するためのメモです。
 - `shipco_senders`
   - 連携設定系のため独立しやすい
 
+- `manager_task_schedules`
+  - 予定管理としては独立度が高いが、`manager_tasks` に従属する
+
 - `test`
   - 本当に孤立テーブルか、検証残骸かは要確認
 
@@ -54,6 +61,7 @@ ER 図やテーブル群の構造を補足するためのメモです。
 - `orders` と `order_line_items` は `id` ではなく `order_no` で結ばれている
 - `inventory_locations` は `id` より `code` が参照キーとして使われる
 - `octoparse_tasks` も `id` ではなく `task_id` が参照される
+- `manager_tasks` は目標系と業務系の両方にぶら下がるハブになっている
 - 外部キーが存在しない業務依存が残っている可能性が高い
 
 ## 今後の改善案

@@ -56,14 +56,29 @@
 - `markdown_presets` / `markdown_runs`
   - eBay markdown セールの設定と実行履歴
 
-### 4. 発送・運送請求
+### 4. マネージャー・目標管理
+
+- `manager_goals`
+  - ユーザー単位の目標管理
+  - `goal_type` は長期 / 中期 / 短期を表す
+- `manager_kpis`
+  - 目標を測る KPI
+  - `direction` により「増やしたい / 減らしたい / 維持したい」を表現
+- `manager_plans`
+  - 目標達成の実行計画
+- `manager_tasks`
+  - 具体タスク
+  - `item_id`, `order_id`, `related_goal_id`, `related_kpi_id`, `related_plan_id` を通じて複数ドメインに接続する
+- `manager_task_schedules`
+  - タスクの予定管理
+  - 内部予定だけでなくカレンダー同期も想定している
+
+### 5. 発送・運送請求
 
 - `shipment_groups`
   - 注文を発送単位にまとめる親テーブル
 - `shipment_group_orders`
   - 発送と注文の中間テーブル
-- `carrier_invoices`
-  - 運送会社請求の親
 - `carrier_shipments`
   - AWB 単位または配送単位の明細
 - `carrier_charges`
@@ -74,8 +89,11 @@
   - 請求ラベル標準化辞書
 - `carrier_unknown_charge_events`
   - 辞書未登録ラベルの発見履歴
+- `carrier_invoices`
+  - 請求書ヘッダであると同時に import 監査の親
+  - `status`, `import_run_id`, `error_message`, `raw_payload` で取り込み成否を追跡する
 
-### 5. 在庫・棚卸
+### 6. 在庫・棚卸
 
 - `inventory_units`
   - 個別在庫、または SKU 単位在庫の主要テーブル
@@ -106,6 +124,18 @@
 | `inventory_counts` | `status` | `draft`, `frozen`, `closed` | 棚卸セッション状態。`draft` のみ編集可。 |
 | `inventory_units` | `status_code` | `in_stock`, `returned`, `cancel_stock`, `domestic_sale` | 棚卸理論在庫の集計対象になる在庫状態。 |
 | `markdown_runs` | `status` | `success`, `failed` | markdown 実行結果。 |
+| `carrier_invoices` | `status` | `pending`, `imported`, `failed`, `skipped` | 請求書 import 状態。 |
+| `manager_goals` | `goal_type` | `long_term`, `mid_term`, `short_term` | 目標の時間軸。 |
+| `manager_goals` | `status` | `draft`, `active`, `on_track`, `at_risk`, `paused`, `completed`, `archived` | 目標状態。 |
+| `manager_kpis` | `direction` | `increase`, `decrease`, `maintain` | KPI の望ましい方向。 |
+| `manager_kpis` | `status` | `draft`, `active`, `on_track`, `at_risk`, `paused`, `completed`, `archived` | KPI 状態。 |
+| `manager_plans` | `status` | `draft`, `active`, `on_track`, `at_risk`, `paused`, `completed`, `archived` | 計画状態。 |
+| `manager_tasks` | `priority` | `high`, `medium`, `low` | タスク優先度。 |
+| `manager_tasks` | `status` | `draft`, `active`, `on_track`, `at_risk`, `paused`, `completed`, `archived` | タスク状態。 |
+| `manager_tasks` | `task_type` | `pricing_review`, `inventory_check`, `listing_research`, `title_improvement`, `margin_review`, `traffic_investigation`, `manual_followup` | タスク種別。 |
+| `manager_tasks` | `source_type` | `sales_summary`, `listings_summary`, `traffic_anomalies`, `risk_summary`, `manual` | タスク発生源。 |
+| `manager_task_schedules` | `calendar_provider` | `internal`, `apple_calendar`, `notion_calendar`, `google_calendar` | 予定同期先。 |
+| `manager_task_schedules` | `sync_status` | `pending`, `synced`, `failed`, `canceled` | カレンダー同期状態。 |
 | `account_health_snapshots` | `seller_level`, `shipping_level` など | eBay API 由来の文字列 | eBay アカウント評価状態。 |
 
 ## 特殊値・実装上の注意
@@ -133,6 +163,15 @@
 - `orders.shipping_status`
   - `READY` は発送準備完了の中間状態として使われる
   - 発送後メッセージ送信は `SHIPPED` を契機に動く設計
+- `order_line_items.procurement_entries`
+  - 確定した仕入れ候補の配列
+  - 各要素は少なくとも `url`, `tracking_number`, `note` を持つ想定
+- `carrier_invoices`
+  - 単なる請求書ヘッダではなく import ジョブの監査対象
+  - `raw_payload` に原文、`error_message` に失敗理由、`import_run_id` に取込単位を保存する
+- `manager_tasks`
+  - 目標系と商品 / 注文系を横断して紐付けるハブテーブル
+  - `related_*` は削除時に `NULL` 化されるため、孤立タスクが残り得る
 - `accounts.access_token`, `accounts.refresh_token`, `octoparse_accounts.password`
   - 機密情報として扱う
   - AI に内容を渡さない

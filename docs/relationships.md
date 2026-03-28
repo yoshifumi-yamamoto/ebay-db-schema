@@ -82,6 +82,24 @@
 | `sheet_conversion_jobs` | `sheet_conversion_job_items` | `job_id -> sheet_conversion_jobs.id` | 1:N | 親削除で行詳細も削除 | ジョブ実行詳細 |
 | `accounts` | `webhooks` | `account_id -> accounts.id` | 1:N | 親削除で webhook も削除 | アカウント別通知設定 |
 
+## マネージャー・目標管理
+
+| 親テーブル | 子テーブル | キー | 関係 | 削除時の影響 | 備考 |
+| --- | --- | --- | --- | --- | --- |
+| `users` | `manager_goals` | `user_id -> users.id` | 1:N | 親削除で goal も削除 | 目標の親はユーザー |
+| `manager_goals` | `manager_kpis` | `goal_id -> manager_goals.id` | 1:N | 親削除で KPI も削除 | KPI は goal 従属 |
+| `users` | `manager_kpis` | `user_id -> users.id` | 1:N | 親削除で KPI も削除 | 直接 user にも紐づく |
+| `manager_goals` | `manager_plans` | `goal_id -> manager_goals.id` | 1:N | 親削除で plan も削除 | 実行計画 |
+| `users` | `manager_plans` | `user_id -> users.id` | 1:N | 親削除で plan も削除 | 作成主体 |
+| `users` | `manager_plans` | `owner_user_id -> users.id` | 1:N | 親削除で owner が `NULL` | 担当者アサイン |
+| `users` | `manager_tasks` | `user_id -> users.id` | 1:N | 親削除で task も削除 | タスクの主体 |
+| `items` | `manager_tasks` | `item_id -> items.id` | 1:N | 親削除で `item_id` が `NULL` | 商品起点タスク |
+| `orders` | `manager_tasks` | `order_id -> orders.id` | 1:N | 親削除で `order_id` が `NULL` | 注文起点タスク |
+| `manager_goals` | `manager_tasks` | `related_goal_id -> manager_goals.id` | 1:N | 親削除で `related_goal_id` が `NULL` | 関連目標 |
+| `manager_kpis` | `manager_tasks` | `related_kpi_id -> manager_kpis.id` | 1:N | 親削除で `related_kpi_id` が `NULL` | 関連 KPI |
+| `manager_plans` | `manager_tasks` | `related_plan_id -> manager_plans.id` | 1:N | 親削除で `related_plan_id` が `NULL` | 関連 plan |
+| `manager_tasks` | `manager_task_schedules` | `task_id -> manager_tasks.id` | 1:N | 親削除で schedule も削除 | 予定管理 |
+
 ## 外部キーが薄いが中心と見られるテーブル
 
 - `orders`
@@ -102,6 +120,9 @@
 - `inventory_counts`
   - `draft` のみ編集可能
   - `frozen` は入力ロック、`closed` は確定扱い
+- `carrier_invoices`
+  - import 監査用に `pending` / `imported` / `failed` / `skipped` を持つ
+  - `updated_at` は trigger で自動更新
 
 ## 削除時に特に注意するテーブル
 
